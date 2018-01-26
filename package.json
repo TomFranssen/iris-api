@@ -1,0 +1,26 @@
+{
+  "name": "iris-api",
+  "version": "1.0.0",
+  "description": "IRIS events API",
+  "author": "Tom Franssen",
+  "private": true,
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "dependencies": {
+    "auth0": "^2.9.1",
+    "cors": "^2.8.4",
+    "dotenv-safe": "^4.0.4",
+    "express": "^4.16.2",
+    "express-jwt": "^5.3.0",
+    "express-jwt-permissions": "^1.0.0",
+    "jwks-rsa": "^1.2.1",
+    "jwt-decode": "^2.2.0",
+    "mongoose": "^5.0.1",
+    "request": "^2.83.0"
+  }
+}
