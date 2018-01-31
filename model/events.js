@@ -64,10 +64,8 @@ const EventSchema = new Schema({
         ],
         guests: [
             {
-                name: {
-                    type: String,
-                    required: true
-                }
+                type: String,
+                required: true
             }
         ],
         open: Boolean
