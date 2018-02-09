@@ -114,10 +114,21 @@ app.get('/api/private/events', authCheck, (req, res) => {
     })
 })
 
+
+
+app.get('/api/private/signedupevents', (req, res) => {
+    var userSub = jwtDecode(req.headers.authorization).sub
+    Event.find({ 'eventDates.signedUpUsers.userId': userSub }, function (err, events) {
+        console.log(events)
+        if (err) {
+            res.send(err)
+        }
+        res.json(events)
+    })
+})
+
 app.get('/api/private/event', (req, res) => {
     Event.findById(req.headers.id, function (err, event) {
-        console.log(event)
-
         if (err) {
             res.send(err)
         }
