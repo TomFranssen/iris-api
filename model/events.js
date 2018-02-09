@@ -113,7 +113,6 @@ const EventSchema = new Schema({
     facebookEvent: String,
     websiteUrl: String,
     publiclyAccessible: Boolean,
-    guestsAllowed: Boolean,
     dressingroomAvailable: Boolean,
     travelRestitution: Boolean,
     parking: Boolean,

@@ -155,20 +155,8 @@ app.put('/api/private/event/signup', authCheck, guard.check('signup:dgevent'), (
         userId: req.body.userId
     }
 
-    console.log(signUpData)
-
     Event.findById(req.body.eventId, function (err, event) {
         event.eventDates[req.body.eventDatesIndex].signedUpUsers.push(signUpData)
-
-        // if (event.eventDates[req.body.eventDateIndex].cancelledUsers.length > 0) {
-        //     for(let cancelledUser of event.eventDates[req.body.eventDateIndex].cancelledUsers.length) {
-        //         console.log(cancelledUser)
-        //         // if (cancelledUser) {
-        //         //
-        //         // }
-        //     }
-        // }
-
         event.save(function (err) {
             if (err) {
                 return res.send(err)
