@@ -114,12 +114,9 @@ app.get('/api/private/events', authCheck, (req, res) => {
     })
 })
 
-
-
 app.get('/api/private/signedupevents', (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
     Event.find({ 'eventDates.signedUpUsers.userId': userSub }, function (err, events) {
-        console.log(events)
         if (err) {
             res.send(err)
         }
@@ -179,10 +176,19 @@ app.put('/api/private/event/signup', authCheck, guard.check('signup:dgevent'), (
 
 app.post('/api/private/event/signout', authCheck, guard.check('signup:dgevent'), (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
+
     if (userSub === req.body.userId) { // check if front-end user ID matched the JWT user ID
         Event.findById(req.body.eventId, function (err, event) {
-            const signUpToRemove = event.eventDates[req.body.eventDateIndex].signedUpUsers.splice(req.body.indexToMoveToCancelled, 1)
-            event.eventDates[req.body.eventDateIndex].cancelledUsers.push(signUpToRemove[0])
+            let signUpToRemove = event.eventDates[req.body.eventDateIndex].signedUpUsers.splice(req.body.indexToMoveToCancelled, 1)[0]
+            let cancelledItem = {}
+
+            cancelledItem.signoutReason = req.body.signoutReason
+            cancelledItem.username = signUpToRemove.username
+            cancelledItem.signUpDate = signUpToRemove.signUpDate
+            cancelledItem.costume = signUpToRemove.costume
+            cancelledItem.userId = signUpToRemove.userId
+
+            event.eventDates[req.body.eventDateIndex].cancelledUsers.push(cancelledItem)
 
             event.save(function (err) {
                 if (err) {
@@ -192,7 +198,7 @@ app.post('/api/private/event/signout', authCheck, guard.check('signup:dgevent'),
             })
         })
     } else {
-        console.log('User ID from signed up user does not match that from JWT')
+        console.log(`User ID from signed up user ${req.body.userId} does not match that from JWT ${userSub}`)
     }
 })
 

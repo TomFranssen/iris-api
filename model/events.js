@@ -59,6 +59,10 @@ const EventSchema = new Schema({
                 userId: {
                     type: String,
                     required: true
+                },
+                signoutReason: {
+                    type: String,
+                    required: true
                 }
             }
         ],
