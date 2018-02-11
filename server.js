@@ -63,7 +63,7 @@ const authCheck = jwt({
     algorithms: ['RS256']
 })
 
-app.get('/api/private/users', (req, res) => {
+app.get('/api/private/users', authCheck, (req, res) => {
     managementClientInstance.getUsers(function (err, users) {
         if (err) {
             console.log(err)
@@ -80,7 +80,7 @@ app.get('/api/501stusers', (req, res) => {
     ).pipe(res);
 })
 
-app.get('/api/private/user', (req, res) => {
+app.get('/api/private/user', authCheck, (req, res) => {
     const userId = req.headers.userid.replace('-', '|')
     managementClientInstance.getUser({ id: userId }, function (err, user) {
 
@@ -91,7 +91,7 @@ app.get('/api/private/user', (req, res) => {
     })
 })
 
-app.patch('/api/private/user', (req, res) => {
+app.patch('/api/private/user', authCheck, (req, res) => {
     const userId = req.body.user.user_id
     const userData = {
         user_metadata: req.body.user.user_metadata
@@ -105,6 +105,21 @@ app.patch('/api/private/user', (req, res) => {
     })
 })
 
+
+app.get('/api/public/event', (req, res) => {
+    const id = req.query.id
+    if (id) {
+        Event.findById(id, function (err, event) {
+            if (err) {
+                res.send(err)
+            }
+            res.json(event)
+        });
+    } else {
+        res.send('No event found')
+    }
+})
+
 app.get('/api/private/events', authCheck, (req, res) => {
     Event.find(function (err, events) {
         if (err) {
@@ -114,7 +129,7 @@ app.get('/api/private/events', authCheck, (req, res) => {
     })
 })
 
-app.get('/api/private/signedupevents', (req, res) => {
+app.get('/api/private/signedupevents', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
     Event.find({ 'eventDates.signedUpUsers.userId': userSub }, function (err, events) {
         if (err) {
@@ -124,7 +139,7 @@ app.get('/api/private/signedupevents', (req, res) => {
     })
 })
 
-app.get('/api/private/event', (req, res) => {
+app.get('/api/private/event', authCheck, (req, res) => {
     Event.findById(req.headers.id, function (err, event) {
         if (err) {
             res.send(err)
@@ -133,7 +148,7 @@ app.get('/api/private/event', (req, res) => {
     })
 })
 
-app.post('/api/private/event', (req, res) => {
+app.post('/api/private/event', authCheck, (req, res) => {
     let event = new Event(req.body)
 
     event.save(function (err) {
@@ -144,7 +159,7 @@ app.post('/api/private/event', (req, res) => {
     })
 })
 
-app.put('/api/private/event', (req, res) => {
+app.put('/api/private/event', authCheck, (req, res) => {
     let changedEvent = new Event(req.body)
     Event.findOneAndUpdate({'_id': changedEvent._id}, req.body, {upsert: true}, function (err, doc) {
         if (err) {
