@@ -189,6 +189,18 @@ app.put('/api/private/event/signup', authCheck, guard.check('signup:dgevent'), (
     })
 })
 
+app.put('/api/private/event/signupguest', authCheck, guard.check('signup:dgevent'), (req, res) => {
+    Event.findById(req.body.eventId, function (err, event) {
+        event.eventDates[req.body.eventDatesIndex].guests.push(req.body.guestName)
+        event.save(function (err) {
+            if (err) {
+                return res.send(err)
+            }
+            res.json({success: true})
+        })
+    })
+})
+
 app.post('/api/private/event/signout', authCheck, guard.check('signup:dgevent'), (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
 
