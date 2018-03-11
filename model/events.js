@@ -123,7 +123,8 @@ const EventSchema = new Schema({
     parkingRestitution: Boolean,
     lunch: Boolean,
     drinks: Boolean,
-    canRegisterGuests: Boolean
+    canRegisterGuests: Boolean,
+    isArchived: Boolean
 })
 
 module.exports = mongoose.model('Event', EventSchema)

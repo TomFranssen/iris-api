@@ -121,7 +121,16 @@ app.get('/api/public/event', (req, res) => {
 })
 
 app.get('/api/private/events', authCheck, (req, res) => {
-    Event.find(function (err, events) {
+    Event.find({'isArchived': false }, function (err, events) {
+        if (err) {
+            res.send(err)
+        }
+        res.json(events)
+    })
+})
+
+app.get('/api/private/archivedevents', authCheck, (req, res) => {
+    Event.find({'isArchived': true }, function (err, events) {
         if (err) {
             res.send(err)
         }
@@ -247,6 +256,54 @@ app.post('/api/private/costumes', (req, res) => {
         res.json({message: 'Costume successfully added!'})
     })
 })
+
+app.post('/api/private/email', (req, res) => {
+
+    console.log(req.body)
+    // res.json({message: 'YESSS'})
+
+    Event.findById(req.body.id, function (err, event) {
+        const template = `
+        <h1>${event.name}</h1>
+        <div>${event.description}</div>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td>
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td bgcolor="#EB7035" style="padding: 12px 18px 12px 18px; border-radius:3px" align="center"><a href="http://iris.501st.nl/event/${event.id}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">View event in IRIS</a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+        `
+        console.log(event)
+
+
+        const DOMAIN = 'mg.501st.nl';
+        const mailgun = require('mailgun-js')({ apiKey: "key-de4a2122a4e6a4f6f6dd548c48a41c7e", domain: DOMAIN });
+
+        const data = {
+          from: 'Excited User <me@samples.mailgun.org>',
+          to: 'tomfranssen1983@gmail.com, tomfranssen1983+1@gmail.com',
+          subject: 'Hey %recipient.first%',
+          html: template,
+          text: 'Your e-mail client doesn\'t support HTML.',
+          'recipient-variables': '{"tomfranssen1983@gmail.com": {"first":"Alice", "id":1}, "tomfranssen1983+1@gmail.com":{"first":"Bob", "id":2}}'
+        };
+
+        mailgun.messages().send(data, function (error, body) {
+          console.log(body);
+        });
+
+        
+    })
+
+
+})
+
+
 
 app.use(function (err, req, res, next) {
     console.log(err)
