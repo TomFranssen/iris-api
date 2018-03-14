@@ -140,7 +140,7 @@ app.get('/api/private/archivedevents', authCheck, (req, res) => {
 
 app.get('/api/private/signedupevents', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
-    Event.find({ 'eventDates.signedUpUsers.userId': userSub }, function (err, events) {
+    Event.find({ 'eventDates.signedUpUsers.userId': userSub, 'isArchived': false }, function (err, events) {
         if (err) {
             res.send(err)
         }
@@ -259,48 +259,88 @@ app.post('/api/private/costumes', (req, res) => {
 
 app.post('/api/private/email', (req, res) => {
 
-    console.log(req.body)
-    // res.json({message: 'YESSS'})
+    console.log(req.body.id);
 
     Event.findById(req.body.id, function (err, event) {
-        const template = `
-        <h1>${event.name}</h1>
-        <div>${event.description}</div>
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td>
-      <table border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td bgcolor="#EB7035" style="padding: 12px 18px 12px 18px; border-radius:3px" align="center"><a href="http://iris.501st.nl/event/${event.id}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">View event in IRIS</a></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-        `
-        console.log(event)
+        console.log(event, err)
+        if (event) {
 
 
-        const DOMAIN = 'mg.501st.nl';
-        const mailgun = require('mailgun-js')({ apiKey: "key-de4a2122a4e6a4f6f6dd548c48a41c7e", domain: DOMAIN });
+            managementClientInstance.getUsers(function (err, users) {
+                if (err) {
+                    console.log(err)
+                }
+                const emails = [];
+                let recipientVariables = '';
+                
+                for (const user of users) {
+                    console.log(user);
+                    if (user.email_verified && user.user_metadata.username) {
+                        emails.push(user.email);
+                        recipientVariables = recipientVariables + `"${user.email}": {"name": "${user.user_metadata.username}"},`;
+                    }
+                }
 
-        const data = {
-          from: 'Excited User <me@samples.mailgun.org>',
-          to: 'tomfranssen1983@gmail.com, tomfranssen1983+1@gmail.com',
-          subject: 'Hey %recipient.first%',
-          html: template,
-          text: 'Your e-mail client doesn\'t support HTML.',
-          'recipient-variables': '{"tomfranssen1983@gmail.com": {"first":"Alice", "id":1}, "tomfranssen1983+1@gmail.com":{"first":"Bob", "id":2}}'
-        };
+                const template = `
+                    <div>
+                        <img style="float: left;" src="http://iris.501st.nl/static/img/icons/android-chrome-192x192.png" width="50" height="50" />
+                        <span style="color:#3b5290; font-size: 20px; padding-left: 10px; line-height: 50px;">IRIS</span> 
+                    </div>
+                    <div style="clear: both;">
+                        <p>Hello %recipient.name%</p>
+                        <p>Please take a look at the following event:</p>
+                    </div>
+                    <div><p><strong>${event.name}</strong></p></div>
+                    <div style="padding: 0 0 1em;">
+                        ${event.description}
+                    </div>
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td>
+                          <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                              <td bgcolor="#3b5290" style="padding: 12px 18px 12px 18px; border-radius:3px" align="center"><a href="http://iris.501st.nl/event/${event.id}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">View event in IRIS</a></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                `
+                const DOMAIN = process.env.MAILGUN_DOMAIN;
+                const mailgun = require('mailgun-js')({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
 
-        mailgun.messages().send(data, function (error, body) {
-          console.log(body);
-        });
+                // const data = {
+                //   from: 'IRIS <iris@501st.nl>',
+                //   to: emails.join(', '),
+                //   subject: `IRIS event: ${event.name}`,
+                //   html: template,
+                //   text: 'Your e-mail client doesn\'t support HTML.',
+                //   'recipient-variables': `{${recipientVariables.slice(0, -1)}}`
+                // };
 
-        
+
+                const data = {
+                  from: 'IRIS <iris@501st.nl>',
+                  to: "tomfranssen1983@gmail.com",
+                  subject: `IRIS event: ${event.name}`,
+                  html: template,
+                  text: 'Your e-mail client doesn\'t support HTML.',
+                  'recipient-variables': '{"tomfranssen1983@gmail.com": {"first":"Alice", "name": "Tom Franssen"}}'
+                };
+
+
+
+                mailgun.messages().send(data, function (error, body) {
+                  console.log(body);
+                });
+
+
+            })
+
+        } else {
+            res.status(400).send('invalid id...')
+        }  
     })
-
-
 })
 
 
