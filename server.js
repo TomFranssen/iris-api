@@ -262,7 +262,7 @@ app.post('/api/private/email', (req, res) => {
     console.log(req.body.id);
 
     Event.findById(req.body.id, function (err, event) {
-        console.log(event, err)
+        console.log(req.body.html)
         if (event) {
 
 
@@ -281,18 +281,32 @@ app.post('/api/private/email', (req, res) => {
                     }
                 }
 
+                console.log(event)
+
                 const template = `
+                    <style>
+                    ul, li {
+                        padding: 0;
+                        margin: 0;
+                        list-style: none;
+                    }
+                    </style>
                     <div>
                         <img style="float: left;" src="http://iris.501st.nl/static/img/icons/android-chrome-192x192.png" width="50" height="50" />
                         <span style="color:#3b5290; font-size: 20px; padding-left: 10px; line-height: 50px;">IRIS</span> 
                     </div>
                     <div style="clear: both;">
-                        <p>Hello %recipient.name%</p>
-                        <p>Please take a look at the following event:</p>
+                        <p>Hoi %recipient.name%,</p>
+                        <p>We willen het volgende evenement onder de aandacht brengen:</p>
                     </div>
-                    <div><p><strong>${event.name}</strong></p></div>
+                    <div><h1>${event.name}</strong></h1>
                     <div style="padding: 0 0 1em;">
                         ${event.description}
+                    </div>
+                    <div style="padding: 0 0 1em;">
+                        ${req.body.html}
+                    </div>
+                    <div>
                     </div>
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                       <tr>
@@ -327,8 +341,6 @@ app.post('/api/private/email', (req, res) => {
                   text: 'Your e-mail client doesn\'t support HTML.',
                   'recipient-variables': '{"tomfranssen1983@gmail.com": {"first":"Alice", "name": "Tom Franssen"}}'
                 };
-
-
 
                 mailgun.messages().send(data, function (error, body) {
                   console.log(body);

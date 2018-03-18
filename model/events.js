@@ -74,37 +74,22 @@ const EventSchema = new Schema({
         ],
         open: Boolean
     }],
-    gatherTime: [{
-        HH: {
-            type: String,
-            required: true
-        },
-        mm: {
-            type: String,
-            required: true
-        }
-    }],
-    startTime: [{
-        HH: {
-            type: String,
-            required: true
-        },
-        mm: {
-            type: String,
-            required: true
-        }
-    }],
-    endTime: [{
-        HH: {
-            type: String,
-            required: true
-        },
-        mm: {
-            type: String,
-            required: true
-        }
-    }],
-    maxSignupDate: String,
+    gatherTime: {
+        type: String,
+        required: true
+    },
+    startTime: {
+        type: String,
+        required: true
+    },
+    endTime: {
+        type: String,
+        required: true
+    },
+    maxSignupDate: {
+        type: Date,
+        required: true
+    },
     eventCoordinator: String,
     street: String,
     postcode: String,
@@ -124,7 +109,8 @@ const EventSchema = new Schema({
     lunch: Boolean,
     drinks: Boolean,
     canRegisterGuests: Boolean,
-    isArchived: Boolean
+    isArchived: Boolean,
+    blastersAllowed: Boolean
 })
 
 module.exports = mongoose.model('Event', EventSchema)
