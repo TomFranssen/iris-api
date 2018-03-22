@@ -292,7 +292,7 @@ app.post('/api/private/email', (req, res) => {
                     }
                     </style>
                     <div>
-                        <img style="float: left;" src="http://iris.501st.nl/static/img/icons/android-chrome-192x192.png" width="50" height="50" />
+                        <img style="float: left;" src="http://iris.501st.nl/img/icons/android-chrome-192x192.png" width="50" height="50" />
                         <span style="color:#3b5290; font-size: 20px; padding-left: 10px; line-height: 50px;">IRIS</span> 
                     </div>
                     <div style="clear: both;">
