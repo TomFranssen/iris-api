@@ -112,5 +112,4 @@ const EventSchema = new Schema({
     isArchived: Boolean,
     blastersAllowed: Boolean
 })
-
 module.exports = mongoose.model('Event', EventSchema)
