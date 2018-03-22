@@ -313,7 +313,7 @@ app.post('/api/private/email', (req, res) => {
                         <td>
                           <table border="0" cellspacing="0" cellpadding="0">
                             <tr>
-                              <td bgcolor="#3b5290" style="padding: 12px 18px 12px 18px; border-radius:3px" align="center"><a href="http://iris.501st.nl/event/${event.id}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">View event in IRIS</a></td>
+                              <td bgcolor="#3b5290" style="padding: 12px 18px 12px 18px; border-radius:3px" align="center"><a href="http://iris.501st.nl/event/${event.id}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">Bekijk evenement in IRIS</a></td>
                             </tr>
                           </table>
                         </td>
