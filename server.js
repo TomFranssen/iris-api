@@ -22,6 +22,8 @@ const Costume = require('./model/costumes')
 const mongoose = require('mongoose')
 
 const ManagementClient = require('auth0').ManagementClient
+
+// documentation: http://auth0.github.io/node-auth0/
 const managementClientInstance = new ManagementClient({
     domain: process.env.AUTH0_DOMAIN,
     clientId: process.env.MANAGEMENT_CLIENT_ID,
@@ -104,7 +106,6 @@ app.patch('/api/private/user', authCheck, (req, res) => {
         res.json(user)
     })
 })
-
 
 app.get('/api/public/event', (req, res) => {
     const id = req.query.id
@@ -247,7 +248,7 @@ app.get('/api/private/costumes', authCheck, (req, res) => {
     })
 })
 
-app.post('/api/private/costumes', (req, res) => {
+app.post('/api/private/costumes', authCheck, (req, res) => {
     let costume = new Costume(req.body)
     costume.save(function (err) {
         if (err) {
@@ -257,15 +258,9 @@ app.post('/api/private/costumes', (req, res) => {
     })
 })
 
-app.post('/api/private/email', (req, res) => {
-
-    console.log(req.body.id);
-
+app.post('/api/private/email', authCheck, (req, res) => {
     Event.findById(req.body.id, function (err, event) {
-        console.log(req.body.html)
         if (event) {
-
-
             managementClientInstance.getUsers(function (err, users) {
                 if (err) {
                     console.log(err)
@@ -274,14 +269,11 @@ app.post('/api/private/email', (req, res) => {
                 let recipientVariables = '';
                 
                 for (const user of users) {
-                    console.log(user);
                     if (user.email_verified && user.user_metadata.username) {
                         emails.push(user.email);
                         recipientVariables = recipientVariables + `"${user.email}": {"name": "${user.user_metadata.username}"},`;
                     }
                 }
-
-                console.log(event)
 
                 const template = `
                     <style>
@@ -343,12 +335,13 @@ app.post('/api/private/email', (req, res) => {
                 };
 
                 mailgun.messages().send(data, function (error, body) {
-                  console.log(body);
+                    if (error) {
+                        res.status(400).json({message: 'Oops! Something went wrong with sending the e-mails'})
+                    } else {
+                        res.json({message: 'E-mail successfully send!'})
+                    }
                 });
-
-
             })
-
         } else {
             res.status(400).send('invalid id...')
         }  
@@ -358,7 +351,6 @@ app.post('/api/private/email', (req, res) => {
 
 
 app.use(function (err, req, res, next) {
-    console.log(err)
     if (err.name === 'UnauthorizedError') {
         res.status(401).send('invalid token...')
     }
