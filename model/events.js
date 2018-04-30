@@ -94,10 +94,7 @@ const EventSchema = new Schema({
     street: String,
     postcode: String,
     houseNumber: String,
-    city: {
-        type: String,
-        required: true
-    },
+    city: String,
     forumUrl: String,
     facebookEvent: String,
     websiteUrl: String,
