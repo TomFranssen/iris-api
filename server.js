@@ -48,7 +48,7 @@ app.use(function (req, res, next) {
 })
 
 mongoose.Promise = global.Promise
-mongoose.connect(`mongodb://iris:${process.env.DB_PASSWORD}@ds133044.mlab.com:33044/iris`, {
+mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_URL}`, {
     keepAlive: true,
     reconnectTries: Number.MAX_VALUE
 })
@@ -172,6 +172,16 @@ app.post('/api/private/event', authCheck, (req, res) => {
 app.put('/api/private/event', authCheck, (req, res) => {
     let changedEvent = new Event(req.body)
     Event.findOneAndUpdate({'_id': changedEvent._id}, req.body, {upsert: true}, function (err, doc) {
+        if (err) {
+            return res.send(err)
+        }
+        res.json({success: true})
+    })
+})
+
+app.delete('/api/private/event', authCheck, guard.check('delete:dgevent'), (req, res) => {
+    const id = req.query.id
+    Event.findByIdAndRemove(id, function(err) {
         if (err) {
             return res.send(err)
         }
