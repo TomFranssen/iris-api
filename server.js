@@ -139,7 +139,7 @@ app.get('/api/private/archivedevents', authCheck, (req, res) => {
     })
 })
 
-app.get('/api/private/signedupevents', authCheck, (req, res) => {
+app.get('/api/private/signedupevents', authCheck, guard.check('view:dgevents'), (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
     Event.find({ 'eventDates.signedUpUsers.userId': userSub, 'isArchived': false }, function (err, events) {
         if (err) {
@@ -149,7 +149,7 @@ app.get('/api/private/signedupevents', authCheck, (req, res) => {
     })
 })
 
-app.get('/api/private/event', authCheck, (req, res) => {
+app.get('/api/private/event', authCheck, guard.check('view:dgevents'), (req, res) => {
     Event.findById(req.headers.id, function (err, event) {
         if (err) {
             res.send(err)
@@ -264,6 +264,10 @@ app.post('/api/private/email', authCheck, (req, res) => {
             managementClientInstance.getUsers(function (err, users) {
                 if (err) {
                     console.log(err)
+                }
+                if (!users) {
+                    console.error('No users found!')
+                    return false
                 }
                 const emails = [];
                 let recipientVariables = '';
