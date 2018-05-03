@@ -66,8 +66,14 @@ const authCheck = jwt({
 })
 
 app.get('/api/private/users', authCheck, (req, res) => {
-    managementClientInstance.getUsers(function (err, users) {
+
+    var params = {
+      per_page: 100
+    };
+
+    managementClientInstance.getUsers(params, function (err, users) {
         if (err) {
+            res.send(err)
             console.log(err)
         }
         res.json(users)
@@ -87,6 +93,7 @@ app.get('/api/private/user', authCheck, (req, res) => {
     managementClientInstance.getUser({ id: userId }, function (err, user) {
 
         if (err) {
+            res.send(err)
             console.log(err)
         }
         res.json(user)
@@ -102,6 +109,7 @@ app.patch('/api/private/user', authCheck, (req, res) => {
     managementClientInstance.updateUser({ id: userId }, userData, function (err, user) {
         if (err) {
             console.log(err)
+            res.send(err)
         }
         res.json(user)
     })
