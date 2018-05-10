@@ -68,7 +68,24 @@ const authCheck = jwt({
 app.get('/api/private/users', authCheck, (req, res) => {
 
     var params = {
-      per_page: 100
+      per_page: 100,
+      page: 0
+    };
+
+    managementClientInstance.getUsers(params, function (err, users) {
+        if (err) {
+            res.send(err)
+            console.log(err)
+        }
+        res.json(users)
+    })
+})
+
+app.get('/api/private/users2', authCheck, (req, res) => {
+
+    var params = {
+      per_page: 100,
+      page: 1
     };
 
     managementClientInstance.getUsers(params, function (err, users) {
