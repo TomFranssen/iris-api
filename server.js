@@ -130,21 +130,37 @@ app.get('/api/public/event', (req, res) => {
 })
 
 app.get('/api/private/events', authCheck, (req, res) => {
-    Event.find({'isArchived': false }, function (err, events) {
-        if (err) {
-            res.send(err)
+    const today = new Date()
+    Event.find(
+        {
+            'eventDates.date': {
+                $gte: today
+            }
+        },
+        function (err, events) {
+            if (err) {
+                res.send(err)
+            }
+            res.json(events)
         }
-        res.json(events)
-    })
+    )
 })
 
 app.get('/api/private/archivedevents', authCheck, (req, res) => {
-    Event.find({'isArchived': true }, function (err, events) {
-        if (err) {
-            res.send(err)
+    const today = new Date()
+    Event.find(
+        {
+            'eventDates.date': {
+                $lt: today
+            }
+        },
+        function (err, events) {
+            if (err) {
+                res.send(err)
+            }
+            res.json(events)
         }
-        res.json(events)
-    })
+    )
 })
 
 app.get('/api/private/signedupevents', authCheck, guard.check('view:dgevents'), (req, res) => {
