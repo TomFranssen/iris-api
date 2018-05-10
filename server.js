@@ -135,7 +135,8 @@ app.get('/api/private/events', authCheck, (req, res) => {
         {
             'eventDates.date': {
                 $gte: today
-            }
+            },
+            'isArchived': false
         },
         function (err, events) {
             if (err) {
@@ -150,9 +151,14 @@ app.get('/api/private/archivedevents', authCheck, (req, res) => {
     const today = new Date()
     Event.find(
         {
-            'eventDates.date': {
-                $lt: today
-            }
+            $or:
+                [
+                    {'isArchived': true},
+                    {'eventDates.date': {
+                            $lt: today
+                        }
+                    }
+                ]
         },
         function (err, events) {
             if (err) {
