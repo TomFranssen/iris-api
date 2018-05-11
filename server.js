@@ -66,36 +66,23 @@ const authCheck = jwt({
 })
 
 app.get('/api/private/users', authCheck, (req, res) => {
-
-    var params = {
+    const users1 = managementClientInstance.getUsers({
       per_page: 100,
       page: 0
-    };
-
-    managementClientInstance.getUsers(params, function (err, users) {
-        if (err) {
-            res.send(err)
-            console.log(err)
-        }
-        res.json(users)
     })
-})
 
-app.get('/api/private/users2', authCheck, (req, res) => {
-
-    var params = {
+    const users2 = managementClientInstance.getUsers({
       per_page: 100,
       page: 1
-    };
-
-    managementClientInstance.getUsers(params, function (err, users) {
-        if (err) {
-            res.send(err)
-            console.log(err)
-        }
-        res.json(users)
     })
+
+    Promise.all([users1, users2]).then(function(users) {
+        const allUsers = users[0].concat(users[1]);
+        res.json(allUsers)
+    });
+
 })
+
 
 app.get('/api/501stusers', (req, res) => {
     request(
