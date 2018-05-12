@@ -305,18 +305,31 @@ app.post('/api/private/costumes', authCheck, (req, res) => {
 app.post('/api/private/email', authCheck, (req, res) => {
     Event.findById(req.body.id, function (err, event) {
         if (event) {
-            managementClientInstance.getUsers(function (err, users) {
+            const users1 = managementClientInstance.getUsers({
+              per_page: 100,
+              page: 0
+            })
+
+            const users2 = managementClientInstance.getUsers({
+              per_page: 100,
+              page: 1
+            })
+
+            Promise.all([users1, users2]).then(function(users) {
+                const allUsers = users[0].concat(users[1]);
+
                 if (err) {
                     console.log(err)
+                    return false
                 }
-                if (!users) {
+                if (!allUsers) {
                     console.error('No users found!')
                     return false
                 }
                 const emails = [];
                 let recipientVariables = '';
                 
-                for (const user of users) {
+                for (const user of allUsers) {
                     if (user.email_verified && user.user_metadata.username) {
                         emails.push(user.email);
                         recipientVariables = recipientVariables + `"${user.email}": {"name": "${user.user_metadata.username}"},`;
@@ -372,10 +385,9 @@ app.post('/api/private/email', authCheck, (req, res) => {
                   'recipient-variables': `{${recipientVariables.slice(0, -1)}}`
                 };
 
-
                 // const data = {
                 //   from: 'IRIS <iris@501st.nl>',
-                //   to: "tomfranssen1983@gmail.com",
+                //   to: ["tomfranssen1983@gmail.com","tomfranssen1983+1@gmail.com"],
                 //   subject: `IRIS event: ${event.name}`,
                 //   html: template,
                 //   text: 'Your e-mail client doesn\'t support HTML.',
@@ -384,12 +396,15 @@ app.post('/api/private/email', authCheck, (req, res) => {
 
                 mailgun.messages().send(data, function (error, body) {
                     if (error) {
+                        console.log(error)
                         res.status(400).json({message: 'Oops! Something went wrong with sending the e-mails'})
                     } else {
                         res.json({message: 'E-mail successfully send!'})
                     }
                 });
-            })
+
+
+            });
         } else {
             res.status(400).send('invalid id...')
         }  
