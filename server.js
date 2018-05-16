@@ -376,28 +376,28 @@ app.post('/api/private/email', authCheck, (req, res) => {
                 const DOMAIN = process.env.MAILGUN_DOMAIN;
                 const mailgun = require('mailgun-js')({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
 
-                const data = {
-                  from: 'IRIS <iris@501st.nl>',
-                  to: emails.join(', '),
-                  subject: `IRIS event: ${event.name}`,
-                  html: template,
-                  text: 'Your e-mail client doesn\'t support HTML.',
-                  'recipient-variables': `{${recipientVariables.slice(0, -1)}}`
-                };
-
                 // const data = {
                 //   from: 'IRIS <iris@501st.nl>',
-                //   to: ["tomfranssen1983@gmail.com","tomfranssen1983+1@gmail.com"],
+                //   to: emails.join(', '),
                 //   subject: `IRIS event: ${event.name}`,
                 //   html: template,
                 //   text: 'Your e-mail client doesn\'t support HTML.',
-                //   'recipient-variables': '{"tomfranssen1983@gmail.com": {"first":"Alice", "name": "Tom Franssen"}}'
+                //   'recipient-variables': `{${recipientVariables.slice(0, -1)}}`
                 // };
+
+                const data = {
+                  from: 'IRIS <iris@501st.nl>',
+                  to: ["tomfranssen1983@gmail.com","tomfranssen1983+1@gmail.com"],
+                  subject: `IRIS event: ${event.name}`,
+                  html: template,
+                  text: 'Your e-mail client doesn\'t support HTML.',
+                  'recipient-variables': '{"tomfranssen1983@gmail.com": {"first":"Alice", "name": "Tom Franssen"}}'
+                };
 
                 mailgun.messages().send(data, function (error, body) {
                     if (error) {
                         console.log(error)
-                        res.status(400).json({message: 'Oops! Something went wrong with sending the e-mails'})
+                        res.status(400).json(error)
                     } else {
                         res.json({message: 'E-mail successfully send!'})
                     }
