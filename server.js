@@ -134,7 +134,8 @@ app.get('/api/public/event', (req, res) => {
 })
 
 app.get('/api/private/events', authCheck, (req, res) => {
-    const today = new Date()
+    let today = new Date()
+    today = today.setDate(today.getDate() - 1);
     Event.find(
         {
             'eventDates.date': {
@@ -152,7 +153,8 @@ app.get('/api/private/events', authCheck, (req, res) => {
 })
 
 app.get('/api/private/archivedevents', authCheck, (req, res) => {
-    const today = new Date()
+    let today = new Date()
+    today = today.setDate(today.getDate() - 1);
     Event.find(
         {
             $or:
