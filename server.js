@@ -177,7 +177,17 @@ app.get('/api/private/archivedevents', authCheck, (req, res) => {
 
 app.get('/api/private/signedupevents', authCheck, guard.check('view:dgevents'), (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
-    Event.find({ 'eventDates.signedUpUsers.userId': userSub, 'isArchived': false }, function (err, events) {
+    let today = new Date()
+    today = today.setDate(today.getDate() - 1);
+    Event.find(
+        {
+            'eventDates.signedUpUsers.userId': userSub,
+            'isArchived': false,
+            'eventDates.date': {
+                $gt: today
+            }
+        },
+        function (err, events) {
         if (err) {
             res.send(err)
         }
