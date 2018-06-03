@@ -329,82 +329,33 @@ app.post('/api/private/email', authCheck, (req, res) => {
                     return false
                 }
                 const emails = [];
-                let recipientVariables = '';
                 
                 for (const user of allUsers) {
                     if (user.email_verified && user.user_metadata.username) {
                         emails.push(user.email);
-                        recipientVariables = recipientVariables + `"${user.email}": {"name": "${user.user_metadata.username}"},`;
                     }
                 }
 
-                const template = `
-                    <style>
-                    ul, li {
-                        padding: 0;
-                        margin: 0;
-                        list-style: none;
-                    }
-                    </style>
-                    <div>
-                        <img style="float: left;" src="http://iris.501st.nl/img/icons/android-chrome-192x192.png" width="50" height="50" />
-                        <span style="color:#3b5290; font-size: 20px; padding-left: 10px; line-height: 50px;">IRIS</span> 
-                    </div>
-                    <div style="clear: both;">
-                        <p>Hoi %recipient.name%,</p>
-                        <p>We willen het volgende evenement onder de aandacht brengen:</p>
-                    </div>
-                    <div><h1>${event.name}</strong></h1>
-                    <div style="padding: 0 0 1em;">
-                        ${event.description}
-                    </div>
-                    <div style="padding: 0 0 1em;">
-                        ${req.body.html}
-                    </div>
-                    <div>
-                    </div>
-                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                      <tr>
-                        <td>
-                          <table border="0" cellspacing="0" cellpadding="0">
-                            <tr>
-                              <td bgcolor="#3b5290" style="padding: 12px 18px 12px 18px; border-radius:3px" align="center"><a href="http://iris.501st.nl/event/${event.id}" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">Bekijk evenement in IRIS</a></td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                `
-                const DOMAIN = process.env.MAILGUN_DOMAIN;
-                const mailgun = require('mailgun-js')({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
-
                 const data = {
-                  from: 'IRIS <iris@501st.nl>',
-                  to: emails.join(', '),
-                  subject: `IRIS event: ${event.name}`,
-                  html: template,
-                  text: 'Your e-mail client doesn\'t support HTML.',
-                  'recipient-variables': `{${recipientVariables.slice(0, -1)}}`
+                  html: req.body.html,
+                  description: event.description,
+                  eventId: req.body.id,
+                  title: event.name,
+                  users: emails
                 };
 
-                // const data = {
-                //   from: 'IRIS <iris@501st.nl>',
-                //   to: ["tomfranssen1983@gmail.com","tomfranssen1983+1@gmail.com"],
-                //   subject: `IRIS event: ${event.name}`,
-                //   html: template,
-                //   text: 'Your e-mail client doesn\'t support HTML.',
-                //   'recipient-variables': '{"tomfranssen1983@gmail.com": {"first":"Alice", "name": "Tom Franssen"}}'
-                // };
+                var request = require('request');
 
-                mailgun.messages().send(data, function (error, body) {
-                    if (error) {
-                        console.log(error)
-                        res.status(400).json(error)
-                    } else {
-                        res.json({message: 'E-mail successfully send!'})
+                request.post({
+                        url: process.env.IRIS_MAIL_URL,
+                        form: data
+                    },
+                    function (error, response, body) {
+                        if (!error && response.statusCode == 200) {
+                            res.json(body)
+                        }
                     }
-                });
-
+                );
 
             });
         } else {
