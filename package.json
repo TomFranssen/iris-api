@@ -20,7 +20,7 @@
     "express-jwt-permissions": "^1.0.0",
     "jwks-rsa": "^1.2.1",
     "jwt-decode": "^2.2.0",
-    "mongoose": "^5.0.9",
+    "mongoose": "^5.2.4",
     "request": "^2.87.0"
   }
 }
