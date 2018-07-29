@@ -295,6 +295,28 @@ app.post('/api/private/event/signout', authCheck, guard.check('signup:dgevent'),
     }
 })
 
+app.post('/api/private/event/change-costume', authCheck, guard.check('signup:dgevent'), (req, res) => {
+    var userSub = jwtDecode(req.headers.authorization).sub
+
+    if (userSub === req.body.userId) { // check if front-end user ID matched the JWT user ID
+        Event.findById(req.body.eventId, function (err, event) {
+            for (const user of event.eventDates[req.body.eventDateIndex].signedUpUsers) {
+                if (req.body.userId === user.userId) {
+                    user.costume = req.body.changedCustome
+                }
+            }
+            event.save(function (err) {
+                if (err) {
+                    return res.send(err)
+                }
+                res.json({message: 'Your costume has been changed!'})
+            })
+        })
+    } else {
+        console.log(`User ID from signed up user ${req.body.userId} does not match that from JWT ${userSub}`)
+    }
+})
+
 app.get('/api/private/costumes', authCheck, (req, res) => {
     Costume.find(function (err, costumes) {
         if (err) {
