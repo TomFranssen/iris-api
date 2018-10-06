@@ -11,6 +11,10 @@ const EventSchema = new Schema({
     //     required: true
     // },
     eventDates: [{
+        dayName: {
+            type: String,
+            required: false
+        },
         date: {
             type: Date,
             required: true
