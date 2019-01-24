@@ -133,11 +133,22 @@ app.get('/api/public/event', (req, res) => {
     }
 })
 
-app.get('/api/private/events', authCheck, (req, res) => {
+
+
+app.get('/api/private/events', authCheck, guard.check([['view:dsbevents'],['view:dgevents']]), (req, res) => {
+    var userSub = jwtDecode(req.headers.authorization)
+    const isDgEvent = userSub['http://iris.501st.nl/claims/permissions'].includes('view:dgevents');
+    const isDsbEvent = userSub['http://iris.501st.nl/claims/permissions'].includes('view:dsbevents');
+
     let today = new Date()
     today = today.setDate(today.getDate() - 1);
     Event.find(
         {
+            $or:
+                [
+                    {'groupDutchGarrison': isDgEvent},
+                    {'groupDuneSeaBase': isDsbEvent},
+                ],
             'eventDates.date': {
                 $gte: today
             },
@@ -152,19 +163,30 @@ app.get('/api/private/events', authCheck, (req, res) => {
     )
 })
 
-app.get('/api/private/archivedevents', authCheck, (req, res) => {
+app.get('/api/private/archivedevents', authCheck, guard.check([['view:dsbevents'],['view:dgevents']]), (req, res) => {
     let today = new Date()
     today = today.setDate(today.getDate() - 1);
     Event.find(
         {
-            $or:
-                [
-                    {'isArchived': true},
-                    {'eventDates.date': {
-                            $lt: today
-                        }
-                    }
-                ]
+            $and: [
+                {
+                    $or:
+                        [
+                            {'isArchived': true},
+                            {'eventDates.date': {
+                                    $lt: today
+                                }
+                            }
+                        ]
+                },
+                {
+                    $or:
+                        [
+                            {'groupDutchGarrison': isDgEvent},
+                            {'groupDuneSeaBase': isDsbEvent}
+                        ]
+                }
+            ]
         },
         function (err, events) {
             if (err) {
@@ -175,7 +197,7 @@ app.get('/api/private/archivedevents', authCheck, (req, res) => {
     )
 })
 
-app.get('/api/private/signedupevents', authCheck, guard.check('view:dgevents'), (req, res) => {
+app.get('/api/private/signedupevents', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
     let today = new Date()
     today = today.setDate(today.getDate() - 1);
@@ -195,7 +217,7 @@ app.get('/api/private/signedupevents', authCheck, guard.check('view:dgevents'), 
     })
 })
 
-app.get('/api/private/event', authCheck, guard.check('view:dgevents'), (req, res) => {
+app.get('/api/private/event', authCheck, (req, res) => {
     Event.findById(req.headers.id, function (err, event) {
         if (err) {
             res.send(err)
