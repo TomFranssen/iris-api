@@ -163,7 +163,7 @@ app.get('/api/private/events', authCheck, (req, res) => {
     )
 })
 
-app.get('/api/private/archivedevents', authCheck, guard.check([['view:dsbevents'],['view:dgevents']]), (req, res) => {
+app.get('/api/private/archivedevents', authCheck, (req, res) => {
     let today = new Date()
     today = today.setDate(today.getDate() - 1);
     var userSub = jwtDecode(req.headers.authorization)
