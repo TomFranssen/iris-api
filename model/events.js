@@ -5,6 +5,7 @@ const Schema = mongoose.Schema
 const EventSchema = new Schema({
     name: String,
     description: String,
+    owner: String,
     groupDutchGarrison: Boolean,
     groupDuneSeaBase: Boolean,
     eventDates: [{

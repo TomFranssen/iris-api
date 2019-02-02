@@ -166,6 +166,9 @@ app.get('/api/private/events', authCheck, guard.check([['view:dsbevents'],['view
 app.get('/api/private/archivedevents', authCheck, guard.check([['view:dsbevents'],['view:dgevents']]), (req, res) => {
     let today = new Date()
     today = today.setDate(today.getDate() - 1);
+    var userSub = jwtDecode(req.headers.authorization)
+    const isDgEvent = userSub['http://iris.501st.nl/claims/permissions'].includes('view:dgevents');
+    const isDsbEvent = userSub['http://iris.501st.nl/claims/permissions'].includes('view:dsbevents');
     Event.find(
         {
             $and: [
@@ -385,8 +388,28 @@ app.post('/api/private/email', authCheck, (req, res) => {
                 const emails = [];
                 
                 for (const user of allUsers) {
-                    if (user.email_verified && user.user_metadata.username) {
-                        emails.push(user.email);
+                    if (
+                        event.groupDutchGarrison === true && 
+                        user && 
+                        user.app_metadata && 
+                        user.app_metadata.authorization && 
+                        user.app_metadata.authorization.permissions && 
+                        user.app_metadata.authorization.permissions.includes('signup:dgevent')
+                    ) {
+                        if (user.email_verified && user.user_metadata.username) {
+                            emails.push(user.email);
+                        }
+                    } else if (
+                        event.groupDuneSeaBase === true && 
+                        user && 
+                        user.app_metadata && 
+                        user.app_metadata.authorization && 
+                        user.app_metadata.authorization.permissions && 
+                        user.app_metadata.authorization.permissions.includes('signup:dsbevent')
+                    ) {
+                        if (user.email_verified && user.user_metadata.username) {
+                            emails.push(user.email);
+                        }
                     }
                 }
 
