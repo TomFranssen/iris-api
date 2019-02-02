@@ -135,7 +135,7 @@ app.get('/api/public/event', (req, res) => {
 
 
 
-app.get('/api/private/events', authCheck, guard.check([['view:dsbevents'],['view:dgevents']]), (req, res) => {
+app.get('/api/private/events', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization)
     const isDgEvent = userSub['http://iris.501st.nl/claims/permissions'].includes('view:dgevents');
     const isDsbEvent = userSub['http://iris.501st.nl/claims/permissions'].includes('view:dsbevents');
