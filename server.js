@@ -250,7 +250,7 @@ app.put('/api/private/event', authCheck, (req, res) => {
     })
 })
 
-app.delete('/api/private/event', authCheck, guard.check('delete:dgevent'), (req, res) => {
+app.delete('/api/private/event', authCheck, guard.check([['delete:dgevent'],['delete:dsbevent']]), (req, res) => {
     const id = req.query.id
     Event.findByIdAndRemove(id, function(err) {
         if (err) {
@@ -260,7 +260,7 @@ app.delete('/api/private/event', authCheck, guard.check('delete:dgevent'), (req,
     })
 })
 
-app.put('/api/private/event/signup', authCheck, guard.check('signup:dgevent'), (req, res) => {
+app.put('/api/private/event/signup', authCheck, guard.check([['signup:dgevent'],['signup:dsbevent']]), (req, res) => {
     const signUpData = {
         signUpDate: new Date(),
         username: req.body.username,
