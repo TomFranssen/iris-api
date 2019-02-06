@@ -250,7 +250,7 @@ app.put('/api/private/event', authCheck, (req, res) => {
     })
 })
 
-app.delete('/api/private/event', authCheck, guard.check([['delete:dgevent'],['delete:dsbevent']]), (req, res) => {
+app.delete('/api/private/event', authCheck, (req, res) => {
     const id = req.query.id
     Event.findByIdAndRemove(id, function(err) {
         if (err) {
@@ -260,7 +260,7 @@ app.delete('/api/private/event', authCheck, guard.check([['delete:dgevent'],['de
     })
 })
 
-app.put('/api/private/event/signup', authCheck, guard.check([['signup:dgevent'],['signup:dsbevent']]), (req, res) => {
+app.put('/api/private/event/signup', authCheck, (req, res) => {
     const signUpData = {
         signUpDate: new Date(),
         username: req.body.username,
@@ -280,7 +280,7 @@ app.put('/api/private/event/signup', authCheck, guard.check([['signup:dgevent'],
     })
 })
 
-app.put('/api/private/event/signupguest', authCheck, guard.check('signup:dgevent'), (req, res) => {
+app.put('/api/private/event/signupguest', authCheck, (req, res) => {
     Event.findById(req.body.eventId, function (err, event) {
         event.eventDates[req.body.eventDatesIndex].guests.push(req.body.guestName)
         event.save(function (err) {
@@ -292,7 +292,7 @@ app.put('/api/private/event/signupguest', authCheck, guard.check('signup:dgevent
     })
 })
 
-app.post('/api/private/event/signout', authCheck, guard.check('signup:dgevent'), (req, res) => {
+app.post('/api/private/event/signout', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
 
     if (userSub === req.body.userId) { // check if front-end user ID matched the JWT user ID
@@ -320,7 +320,7 @@ app.post('/api/private/event/signout', authCheck, guard.check('signup:dgevent'),
     }
 })
 
-app.post('/api/private/event/change-costume', authCheck, guard.check('signup:dgevent'), (req, res) => {
+app.post('/api/private/event/change-costume', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization).sub
 
     if (userSub === req.body.userId) { // check if front-end user ID matched the JWT user ID
