@@ -229,6 +229,7 @@ app.get('/api/private/event', authCheck, (req, res) => {
     })
 })
 
+
 app.post('/api/private/event', authCheck, (req, res) => {
     let event = new Event(req.body)
 
