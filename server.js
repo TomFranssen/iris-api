@@ -5,6 +5,7 @@ require('dotenv-safe').load({
     sample: './.env.example'
 })
 
+
 const express = require('express')
 const app = express()
 const router = express.Router()
@@ -20,6 +21,7 @@ const bodyParser = require('body-parser')
 const Event = require('./model/events')
 const Costume = require('./model/costumes')
 const mongoose = require('mongoose')
+const memorycache = require('memory-cache')
 
 const ManagementClient = require('auth0').ManagementClient
 
@@ -134,6 +136,34 @@ app.get('/api/public/event', (req, res) => {
 })
 
 
+var cache = (duration) => {
+  return (req, res, next) => {
+    let key = '__express__' + req.originalUrl || req.url
+    let cachedBody = memorycache.get(key)
+    if (cachedBody) {
+        console.log('Return cached body');
+        res.type('json');   
+        res.send(cachedBody)
+        return
+    } else {
+        res.sendResponse = res.send
+        console.log('Return original');   
+        res.send = (body) => {
+            memorycache.put(key, body, duration * 1000);
+            res.type('json');
+            res.sendResponse(body)
+      }
+      next()
+    }
+  }
+}
+
+app.get('/api/public/501stcostumes', cache(56400), (req, res) => {
+    const url = 'https://www.501st.com/memberAPI/v3/garrisons/31/members/costumes';
+        request(url, (error, response, body) => {
+            res.json(JSON.parse(body))
+        })
+})
 
 app.get('/api/private/events', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization)
