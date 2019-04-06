@@ -1,0 +1,22 @@
+2019-03-22T19:51:06.017636+00:00 heroku[web.1]: State changed from up to crashed
+2019-03-22T19:51:05.951687+00:00 app[web.1]: events.js:173
+2019-03-22T19:51:05.951734+00:00 app[web.1]: throw er; // Unhandled 'error' event
+2019-03-22T19:51:05.951736+00:00 app[web.1]: ^
+2019-03-22T19:51:05.951737+00:00 app[web.1]:
+2019-03-22T19:51:05.951741+00:00 app[web.1]: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+2019-03-22T19:51:05.951743+00:00 app[web.1]: at ServerResponse.setHeader (_http_outgoing.js:482:11)
+2019-03-22T19:51:05.951745+00:00 app[web.1]: at ServerResponse.header (/app/node_modules/express/lib/response.js:767:10)
+2019-03-22T19:51:05.951746+00:00 app[web.1]: at ServerResponse.json (/app/node_modules/express/lib/response.js:264:10)
+2019-03-22T19:51:05.951748+00:00 app[web.1]: at /app/server.js:228:13
+2019-03-22T19:51:05.951749+00:00 app[web.1]: at /app/node_modules/mongoose/lib/model.js:4470:16
+2019-03-22T19:51:05.951751+00:00 app[web.1]: at model.Query.Query._findOne (/app/node_modules/mongoose/lib/query.js:1750:5)
+2019-03-22T19:51:05.951752+00:00 app[web.1]: at process.nextTick (/app/node_modules/kareem/index.js:333:33)
+2019-03-22T19:51:05.951753+00:00 app[web.1]: at processTicksAndRejections (internal/process/next_tick.js:74:9)
+2019-03-22T19:51:05.951754+00:00 app[web.1]: at runNextTicks (internal/process/next_tick.js:51:3)
+2019-03-22T19:51:05.951756+00:00 app[web.1]: at processImmediate (timers.js:610:7)
+2019-03-22T19:51:05.951757+00:00 app[web.1]: Emitted 'error' event at:
+2019-03-22T19:51:05.951758+00:00 app[web.1]: at /app/node_modules/mongoose/lib/model.js:4472:13
+2019-03-22T19:51:05.951760+00:00 app[web.1]: at model.Query.Query._findOne (/app/node_modules/mongoose/lib/query.js:1750:5)
+2019-03-22T19:51:05.951761+00:00 app[web.1]: [... lines matching original stack trace ...]
+2019-03-22T19:51:05.951762+00:00 app[web.1]: at processImmediate (timers.js:610:7)
+2019-03-22T19:51:06.000008+00:00 heroku[web.1]: Process exited with status 1

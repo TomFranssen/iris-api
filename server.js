@@ -21,6 +21,7 @@ const bodyParser = require('body-parser')
 const Event = require('./model/events')
 const Costume = require('./model/costumes')
 const mongoose = require('mongoose')
+const memorycache = require('memory-cache')
 
 const ManagementClient = require('auth0').ManagementClient
 
@@ -100,8 +101,9 @@ app.get('/api/private/user', authCheck, (req, res) => {
         if (err) {
             res.send(err)
             console.log(err)
+        } else {
+            res.json(user)
         }
-        res.json(user)
     })
 })
 
@@ -115,8 +117,9 @@ app.patch('/api/private/user', authCheck, (req, res) => {
         if (err) {
             console.log(err)
             res.send(err)
+        } else {
+            res.json(user)
         }
-        res.json(user)
     })
 })
 
@@ -126,8 +129,9 @@ app.get('/api/public/event', (req, res) => {
         Event.findById(id, function (err, event) {
             if (err) {
                 res.send(err)
+            } else {
+                res.json(event)
             }
-            res.json(event)
         });
     } else {
         res.send('No event found')
@@ -135,6 +139,32 @@ app.get('/api/public/event', (req, res) => {
 })
 
 
+var cache = (duration) => {
+  return (req, res, next) => {
+    let key = '__express__' + req.originalUrl || req.url
+    let cachedBody = memorycache.get(key)
+    if (cachedBody) {
+        res.type('json');   
+        res.send(cachedBody)
+        return
+    } else {
+        res.sendResponse = res.send
+        res.send = (body) => {
+            memorycache.put(key, body, duration * 1000);
+            res.type('json');
+            res.sendResponse(body)
+      }
+      next()
+    }
+  }
+}
+
+app.get('/api/public/501stcostumes', cache(56400), (req, res) => {
+    const url = 'https://www.501st.com/memberAPI/v3/garrisons/31/members/costumes';
+        request(url, (error, response, body) => {
+            res.json(JSON.parse(body))
+        })
+})
 
 app.get('/api/private/events', authCheck, (req, res) => {
     var userSub = jwtDecode(req.headers.authorization)
@@ -158,8 +188,9 @@ app.get('/api/private/events', authCheck, (req, res) => {
         function (err, events) {
             if (err) {
                 res.send(err)
+            } else {
+                res.json(events)
             }
-            res.json(events)
         }
     )
 })
@@ -195,8 +226,9 @@ app.get('/api/private/archivedevents', authCheck, (req, res) => {
         function (err, events) {
             if (err) {
                 res.send(err)
+            } else {
+                res.json(events)
             }
-            res.json(events)
         }
     )
 })
@@ -225,8 +257,9 @@ app.get('/api/private/event', authCheck, (req, res) => {
     Event.findById(req.headers.id, function (err, event) {
         if (err) {
             res.send(err)
+        } else {
+            res.json(event)
         }
-        res.json(event)
     })
 })
 
@@ -237,8 +270,9 @@ app.post('/api/private/event', authCheck, (req, res) => {
     event.save(function (err) {
         if (err) {
             return res.send(err)
+        } else {
+            res.json({message: 'Event successfully added!'})
         }
-        res.json({message: 'Event successfully added!'})
     })
 })
 
@@ -247,8 +281,9 @@ app.put('/api/private/event', authCheck, (req, res) => {
     Event.findOneAndUpdate({'_id': changedEvent._id}, req.body, {upsert: true}, function (err, doc) {
         if (err) {
             return res.send(err)
+        } else {
+            res.json({success: true})
         }
-        res.json({success: true})
     })
 })
 
@@ -257,8 +292,9 @@ app.delete('/api/private/event', authCheck, (req, res) => {
     Event.findByIdAndRemove(id, function(err) {
         if (err) {
             return res.send(err)
+        } else {
+            res.json({success: true})
         }
-        res.json({success: true})
     })
 })
 
@@ -276,8 +312,9 @@ app.put('/api/private/event/signup', authCheck, (req, res) => {
         event.save(function (err) {
             if (err) {
                 return res.send(err)
+            } else {
+                res.json({success: true})
             }
-            res.json({success: true})
         })
     })
 })
@@ -288,8 +325,9 @@ app.put('/api/private/event/signupguest', authCheck, (req, res) => {
         event.save(function (err) {
             if (err) {
                 return res.send(err)
+            } else {
+                res.json({success: true})
             }
-            res.json({success: true})
         })
     })
 })
@@ -313,8 +351,9 @@ app.post('/api/private/event/signout', authCheck, (req, res) => {
             event.save(function (err) {
                 if (err) {
                     return res.send(err)
+                } else {
+                    res.json({message: 'You have been signed out!'})
                 }
-                res.json({message: 'You have been signed out!'})
             })
         })
     } else {
@@ -329,14 +368,18 @@ app.post('/api/private/event/change-costume', authCheck, (req, res) => {
         Event.findById(req.body.eventId, function (err, event) {
             for (const user of event.eventDates[req.body.eventDateIndex].signedUpUsers) {
                 if (req.body.userId === user.userId) {
+                    if (req.body.avatar) {
+                        user.avatar = req.body.avatar;
+                    }
                     user.costume = req.body.changedCustome
                 }
             }
             event.save(function (err) {
                 if (err) {
                     return res.send(err)
+                } else {
+                    res.json({message: 'Your costume has been changed!'})
                 }
-                res.json({message: 'Your costume has been changed!'})
             })
         })
     } else {
@@ -348,8 +391,9 @@ app.get('/api/private/costumes', authCheck, (req, res) => {
     Costume.find(function (err, costumes) {
         if (err) {
             res.send(err)
+        } else {
+            res.json(costumes)
         }
-        res.json(costumes)
     })
 })
 
@@ -358,8 +402,9 @@ app.post('/api/private/costumes', authCheck, (req, res) => {
     costume.save(function (err) {
         if (err) {
             return res.send(err)
+        } else {
+            res.json({message: 'Costume successfully added!'})
         }
-        res.json({message: 'Costume successfully added!'})
     })
 })
 
