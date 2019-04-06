@@ -40,7 +40,7 @@ app.use(cors())
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Credentials', 'true')
-    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE')
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE,PATCH')
     res.setHeader(
         'Access-Control-Allow-Headers',
         'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
@@ -52,7 +52,8 @@ app.use(function (req, res, next) {
 mongoose.Promise = global.Promise
 mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_URL}`, {
     keepAlive: true,
-    reconnectTries: Number.MAX_VALUE
+    reconnectTries: Number.MAX_VALUE,
+    useNewUrlParser: true,
 })
 
 const authCheck = jwt({
@@ -97,7 +98,6 @@ app.get('/api/501stusers', (req, res) => {
 app.get('/api/private/user', authCheck, (req, res) => {
     const userId = req.headers.userid.replace('-', '|')
     managementClientInstance.getUser({ id: userId }, function (err, user) {
-
         if (err) {
             res.send(err)
             console.log(err)
@@ -107,7 +107,7 @@ app.get('/api/private/user', authCheck, (req, res) => {
     })
 })
 
-app.patch('/api/private/user', authCheck, (req, res) => {
+app.patch('/api/private/user', (req, res) => {
     const userId = req.body.user.user_id
     const userData = {
         user_metadata: req.body.user.user_metadata
@@ -117,9 +117,8 @@ app.patch('/api/private/user', authCheck, (req, res) => {
         if (err) {
             console.log(err)
             res.send(err)
-        } else {
-            res.json(user)
-        }
+        } 
+        res.json(user)
     })
 })
 
