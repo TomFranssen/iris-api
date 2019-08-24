@@ -252,6 +252,25 @@ app.get('/api/private/signedupevents', authCheck, (req, res) => {
     })
 })
 
+app.get('/api/private/signedupeventsforuser', authCheck, (req, res) => {
+    let today = new Date()
+    today = today.setDate(today.getDate() - 1);
+    Event.find(
+        {
+            'eventDates.signedUpUsers.userId': req.headers.userid,
+            'isArchived': false,
+            'eventDates.date': {
+                $gt: today
+            }
+        },
+        function (err, events) {
+        if (err) {
+            res.send(err)
+        }
+        res.json(events)
+    })
+})
+
 app.get('/api/private/event', authCheck, (req, res) => {
     Event.findById(req.headers.id, function (err, event) {
         if (err) {
