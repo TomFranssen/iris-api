@@ -21,7 +21,7 @@
     "jwks-rsa": "^1.2.1",
     "jwt-decode": "^2.2.0",
     "memory-cache": "^0.2.0",
-    "mongoose": "^5.2.4",
+    "mongoose": "^5.7.5",
     "request": "^2.87.0"
   }
 }
