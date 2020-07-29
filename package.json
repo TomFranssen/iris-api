@@ -12,7 +12,7 @@
     "npm": ">= 3.0.0"
   },
   "dependencies": {
-    "auth0": "^2.20.0",
+    "auth0": "^2.27.1",
     "cors": "^2.8.5",
     "dotenv-safe": "^5.0.1",
     "express": "^4.17.1",
