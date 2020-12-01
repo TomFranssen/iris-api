@@ -50,7 +50,7 @@ app.use(function (req, res, next) {
 })
 
 mongoose.Promise = global.Promise
-mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_URL}`, {
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_URL}`, {
     keepAlive: true,
     reconnectTries: Number.MAX_VALUE,
     useNewUrlParser: true,
